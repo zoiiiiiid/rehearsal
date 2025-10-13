@@ -1,0 +1,83 @@
+Date : 2025-10-12 00:38:38
+Directory : c:\Xampp\htdocs\backend\api
+Total : 59 files,  2799 codes, 250 comments, 518 blanks, all 3567 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| PHP      |         59 |      2,799 |        250 |        518 |      3,567 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                          | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                             |         59 |      2,799 |        250 |        518 |      3,567 |
++---------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                      | language | code       | comment    | blank      | total      |
++---------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Xampp\htdocs\backend\api\.env.php                          | PHP      |          9 |          1 |          0 |         10 |
+| c:\Xampp\htdocs\backend\api\admin_analytics_overview.php      | PHP      |         68 |          8 |         12 |         88 |
+| c:\Xampp\htdocs\backend\api\admin_analytics_series.php        | PHP      |         84 |          2 |          6 |         92 |
+| c:\Xampp\htdocs\backend\api\admin_analytics_top_mentors.php   | PHP      |         78 |          7 |          9 |         94 |
+| c:\Xampp\htdocs\backend\api\admin_analytics_top_workshops.php | PHP      |         42 |          2 |          7 |         51 |
+| c:\Xampp\htdocs\backend\api\admin_pending_list.php            | PHP      |         56 |          5 |          9 |         70 |
+| c:\Xampp\htdocs\backend\api\attendance_scan.php               | PHP      |        142 |         18 |         26 |        186 |
+| c:\Xampp\htdocs\backend\api\attendance_token.php              | PHP      |         31 |          6 |          8 |         45 |
+| c:\Xampp\htdocs\backend\api\avatar_upload.php                 | PHP      |         86 |         12 |         15 |        113 |
+| c:\Xampp\htdocs\backend\api\checkin_scan.php                  | PHP      |         30 |          4 |         10 |         44 |
+| c:\Xampp\htdocs\backend\api\comment_create.php                | PHP      |         43 |          6 |         10 |         59 |
+| c:\Xampp\htdocs\backend\api\comment_delete.php                | PHP      |         22 |          0 |          6 |         28 |
+| c:\Xampp\htdocs\backend\api\comments_list.php                 | PHP      |         39 |          0 |          5 |         44 |
+| c:\Xampp\htdocs\backend\api\conversations_list.php            | PHP      |         47 |          3 |          5 |         55 |
+| c:\Xampp\htdocs\backend\api\db.php                            | PHP      |         17 |          0 |          4 |         21 |
+| c:\Xampp\htdocs\backend\api\feed.php                          | PHP      |         58 |          1 |         10 |         69 |
+| c:\Xampp\htdocs\backend\api\follow_counts.php                 | PHP      |         26 |          2 |          7 |         35 |
+| c:\Xampp\htdocs\backend\api\follow_list.php                   | PHP      |         68 |          8 |         16 |         92 |
+| c:\Xampp\htdocs\backend\api\follow_toggle.php                 | PHP      |         41 |          7 |         10 |         58 |
+| c:\Xampp\htdocs\backend\api\health.php                        | PHP      |          4 |          0 |          0 |          4 |
+| c:\Xampp\htdocs\backend\api\like_toggle.php                   | PHP      |         34 |          3 |          6 |         43 |
+| c:\Xampp\htdocs\backend\api\login.php                         | PHP      |         37 |          2 |          7 |         46 |
+| c:\Xampp\htdocs\backend\api\logout.php                        | PHP      |          7 |          0 |          0 |          7 |
+| c:\Xampp\htdocs\backend\api\me.php                            | PHP      |         17 |          0 |          4 |         21 |
+| c:\Xampp\htdocs\backend\api\mentor_application.php            | PHP      |         26 |          4 |          9 |         39 |
+| c:\Xampp\htdocs\backend\api\mentor_reject.php                 | PHP      |         19 |          0 |          4 |         23 |
+| c:\Xampp\htdocs\backend\api\mentor_verify.php                 | PHP      |         30 |          1 |          5 |         36 |
+| c:\Xampp\htdocs\backend\api\messages_list.php                 | PHP      |         55 |          4 |          7 |         66 |
+| c:\Xampp\htdocs\backend\api\messages_mark_read.php            | PHP      |         26 |          2 |          5 |         33 |
+| c:\Xampp\htdocs\backend\api\messages_send.php                 | PHP      |         53 |          4 |         13 |         70 |
+| c:\Xampp\htdocs\backend\api\messages_send_media.php           | PHP      |        166 |         11 |         31 |        208 |
+| c:\Xampp\htdocs\backend\api\notifications_count.php           | PHP      |         16 |          1 |          6 |         23 |
+| c:\Xampp\htdocs\backend\api\notifications_list.php            | PHP      |         65 |          4 |         11 |         80 |
+| c:\Xampp\htdocs\backend\api\notifications_mark_read.php       | PHP      |         16 |          2 |          6 |         24 |
+| c:\Xampp\htdocs\backend\api\notifications_unread.php          | PHP      |          9 |          0 |          4 |         13 |
+| c:\Xampp\htdocs\backend\api\post_create.php                   | PHP      |         73 |         12 |         16 |        101 |
+| c:\Xampp\htdocs\backend\api\post_delete.php                   | PHP      |         36 |          3 |          8 |         47 |
+| c:\Xampp\htdocs\backend\api\post_get.php                      | PHP      |         46 |         12 |          9 |         67 |
+| c:\Xampp\htdocs\backend\api\profile_avatar_upload.php         | PHP      |         46 |          6 |         15 |         67 |
+| c:\Xampp\htdocs\backend\api\profile_me.php                    | PHP      |         11 |          0 |          0 |         11 |
+| c:\Xampp\htdocs\backend\api\profile_overview.php              | PHP      |        108 |          9 |         18 |        135 |
+| c:\Xampp\htdocs\backend\api\profile_posts.php                 | PHP      |         20 |          0 |          5 |         25 |
+| c:\Xampp\htdocs\backend\api\profile_update.php                | PHP      |         96 |          8 |         19 |        123 |
+| c:\Xampp\htdocs\backend\api\qr_issue.php                      | PHP      |         48 |          7 |         11 |         66 |
+| c:\Xampp\htdocs\backend\api\register.php                      | PHP      |         33 |          3 |          6 |         42 |
+| c:\Xampp\htdocs\backend\api\rsvp_toggle.php                   | PHP      |         30 |          4 |          8 |         42 |
+| c:\Xampp\htdocs\backend\api\search.php                        | PHP      |         70 |          2 |          5 |         77 |
+| c:\Xampp\htdocs\backend\api\search_users.php                  | PHP      |         53 |          6 |         10 |         69 |
+| c:\Xampp\htdocs\backend\api\skills_list.php                   | PHP      |          7 |          1 |          1 |          9 |
+| c:\Xampp\htdocs\backend\api\spotlight_artists.php             | PHP      |         82 |          4 |          9 |         95 |
+| c:\Xampp\htdocs\backend\api\spotlight_leaderboard.php         | PHP      |         98 |          6 |         18 |        122 |
+| c:\Xampp\htdocs\backend\api\spotlight_status.php              | PHP      |         31 |          4 |          7 |         42 |
+| c:\Xampp\htdocs\backend\api\spotlight_vote.php                | PHP      |         43 |          9 |         12 |         64 |
+| c:\Xampp\htdocs\backend\api\token_echo.php                    | PHP      |         18 |          0 |          3 |         21 |
+| c:\Xampp\htdocs\backend\api\update_profile.php                | PHP      |         28 |          0 |          0 |         28 |
+| c:\Xampp\htdocs\backend\api\username_check.php                | PHP      |         29 |          7 |          7 |         43 |
+| c:\Xampp\htdocs\backend\api\util.php                          | PHP      |         78 |          4 |         16 |         98 |
+| c:\Xampp\htdocs\backend\api\workshop_detail.php               | PHP      |         70 |          4 |          9 |         83 |
+| c:\Xampp\htdocs\backend\api\workshops_list.php                | PHP      |         78 |          9 |         13 |        100 |
+| Total                                                         |          |      2,799 |        250 |        518 |      3,567 |
++---------------------------------------------------------------+----------+------------+------------+------------+------------+

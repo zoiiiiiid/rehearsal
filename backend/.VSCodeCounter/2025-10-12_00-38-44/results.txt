@@ -1,0 +1,58 @@
+Date : 2025-10-12 00:38:44
+Directory : c:\Xampp\htdocs\backend\web
+Total : 34 files,  3226 codes, 222 comments, 417 blanks, all 3865 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| PHP      |         34 |      3,226 |        222 |        417 |      3,865 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                               | files      | code       | comment    | blank      | total      |
++----------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                  |         34 |      3,226 |        222 |        417 |      3,865 |
++----------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                           | language | code       | comment    | blank      | total      |
++----------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Xampp\htdocs\backend\web\act_apply_mentor.php   | PHP      |         10 |          0 |          2 |         12 |
+| c:\Xampp\htdocs\backend\web\act_comment_create.php | PHP      |          9 |          0 |          3 |         12 |
+| c:\Xampp\htdocs\backend\web\act_comment_delete.php | PHP      |          9 |          0 |          3 |         12 |
+| c:\Xampp\htdocs\backend\web\act_like.php           | PHP      |          8 |          0 |          3 |         11 |
+| c:\Xampp\htdocs\backend\web\act_post_delete.php    | PHP      |          8 |          0 |          3 |         11 |
+| c:\Xampp\htdocs\backend\web\act_spotlight_vote.php | PHP      |         10 |          0 |          2 |         12 |
+| c:\Xampp\htdocs\backend\web\admin_approvals.php    | PHP      |         28 |          0 |          1 |         29 |
+| c:\Xampp\htdocs\backend\web\admin_approve_do.php   | PHP      |          5 |          0 |          1 |          6 |
+| c:\Xampp\htdocs\backend\web\admin_panel.php        | PHP      |         54 |          2 |          6 |         62 |
+| c:\Xampp\htdocs\backend\web\admin_reject_do.php    | PHP      |          5 |          0 |          1 |          6 |
+| c:\Xampp\htdocs\backend\web\admin_reports.php      | PHP      |        505 |         24 |         34 |        563 |
+| c:\Xampp\htdocs\backend\web\chat.php               | PHP      |         54 |          0 |          3 |         57 |
+| c:\Xampp\htdocs\backend\web\feed.php               | PHP      |         42 |          0 |          2 |         44 |
+| c:\Xampp\htdocs\backend\web\inbox.php              | PHP      |        221 |         18 |         26 |        265 |
+| c:\Xampp\htdocs\backend\web\index.php              | PHP      |        340 |         15 |         46 |        401 |
+| c:\Xampp\htdocs\backend\web\mentor_dashboard.php   | PHP      |         21 |          1 |          5 |         27 |
+| c:\Xampp\htdocs\backend\web\notifications.php      | PHP      |         16 |          4 |          3 |         23 |
+| c:\Xampp\htdocs\backend\web\post.php               | PHP      |        301 |         16 |         47 |        364 |
+| c:\Xampp\htdocs\backend\web\profile.php            | PHP      |        129 |          9 |         19 |        157 |
+| c:\Xampp\htdocs\backend\web\profile_edit.php       | PHP      |        196 |         13 |         28 |        237 |
+| c:\Xampp\htdocs\backend\web\public_profile.php     | PHP      |        116 |          5 |         16 |        137 |
+| c:\Xampp\htdocs\backend\web\search.php             | PHP      |         43 |          0 |          5 |         48 |
+| c:\Xampp\htdocs\backend\web\spotlight.php          | PHP      |        107 |          4 |         12 |        123 |
+| c:\Xampp\htdocs\backend\web\user.php               | PHP      |         48 |          1 |          6 |         55 |
+| c:\Xampp\htdocs\backend\web\verification_apply.php | PHP      |         70 |         11 |         10 |         91 |
+| c:\Xampp\htdocs\backend\web\web_common.php         | PHP      |        358 |         71 |         55 |        484 |
+| c:\Xampp\htdocs\backend\web\web_login.php          | PHP      |        114 |         15 |         22 |        151 |
+| c:\Xampp\htdocs\backend\web\web_ping.php           | PHP      |         27 |          4 |          5 |         36 |
+| c:\Xampp\htdocs\backend\web\web_register.php       | PHP      |         48 |          5 |          6 |         59 |
+| c:\Xampp\htdocs\backend\web\workshop_detail.php    | PHP      |         21 |          0 |          2 |         23 |
+| c:\Xampp\htdocs\backend\web\workshop_new.php       | PHP      |         84 |          0 |         11 |         95 |
+| c:\Xampp\htdocs\backend\web\workshop_pass.php      | PHP      |         40 |          2 |          7 |         49 |
+| c:\Xampp\htdocs\backend\web\workshop_scan.php      | PHP      |        100 |          0 |         15 |        115 |
+| c:\Xampp\htdocs\backend\web\workshops.php          | PHP      |         79 |          2 |          7 |         88 |
+| Total                                              |          |      3,226 |        222 |        417 |      3,865 |
++----------------------------------------------------+----------+------------+------------+------------+------------+

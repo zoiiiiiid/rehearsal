@@ -1,0 +1,14 @@
+# backend/uploads/.htaccess
+<IfModule mod_headers.c>
+  # allow web app at any localhost port to fetch images
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization, Range"
+  Header set Access-Control-Expose-Headers "Content-Length, Content-Range"
+  Header set Cross-Origin-Resource-Policy "cross-origin"
+</IfModule>
+
+# Be explicit for common image types
+<FilesMatch "\.(?:jpg|jpeg|png|webp|gif)$">
+  Header set Access-Control-Allow-Origin "*"
+</FilesMatch>

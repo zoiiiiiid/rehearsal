@@ -1,0 +1,1 @@
+flutter run -d chrome --dart-define=API_BASE=http://localhost/backend/api

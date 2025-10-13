@@ -1,0 +1,43 @@
+Date : 2025-10-11 20:57:42
+Directory : c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages
+Total : 19 files,  6250 codes, 166 comments, 632 blanks, all 7048 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Dart     |         19 |      6,250 |        166 |        632 |      7,048 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                              | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                 |         19 |      6,250 |        166 |        632 |      7,048 |
++-----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                          | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\admin_approvals_page.dart | Dart     |        258 |          6 |         26 |        290 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\admin_reports_page.dart   | Dart     |        356 |         10 |         48 |        414 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\chat_page.dart            | Dart     |        469 |         27 |         61 |        557 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\create_page.dart          | Dart     |        296 |         15 |         33 |        344 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\follow_list_page.dart     | Dart     |        156 |          0 |         16 |        172 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\home_page.dart            | Dart     |        830 |         28 |         88 |        946 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\inbox_page.dart           | Dart     |        135 |          1 |         12 |        148 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\login_page.dart           | Dart     |        150 |          2 |         18 |        170 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\notifications_page.dart   | Dart     |        479 |         20 |         43 |        542 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\profile_edit_page.dart    | Dart     |        293 |          9 |         38 |        340 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\profile_page.dart         | Dart     |        596 |          8 |         51 |        655 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\public_profile_page.dart  | Dart     |        334 |          4 |         29 |        367 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\register_page.dart        | Dart     |        170 |          1 |         17 |        188 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\search_page.dart          | Dart     |        237 |          8 |         23 |        268 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\shell.dart                | Dart     |         70 |          3 |          6 |         79 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\workshop_detail_page.dart | Dart     |        407 |          5 |         35 |        447 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\workshop_page.dart        | Dart     |        790 |         15 |         63 |        868 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\workshop_pass_page.dart   | Dart     |         98 |          2 |         10 |        110 |
+| c:\Users\lanzt\OneDrive\Desktop\Rehearsal\app\lib\pages\workshop_scan_page.dart   | Dart     |        126 |          2 |         15 |        143 |
+| Total                                                                             |          |      6,250 |        166 |        632 |      7,048 |
++-----------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

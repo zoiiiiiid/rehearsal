@@ -1,0 +1,24 @@
+name: rehearsal_app
+publish_to: 'none'
+description: Re:hearsal Auth MVP
+version: 0.0.1+1
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  flutter_svg: ^2.2.0
+  shared_preferences: ^2.2.3
+  file_picker: ^8.3.7
+  video_player: ^2.10.0
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^3.5.5
+  url_launcher: ^6.3.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/logo.svg
