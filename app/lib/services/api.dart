@@ -9,10 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   // Use env var API_BASE for web; emulator IP for Android by default.
   static final String baseUrl = const String.fromEnvironment(
-    'API_BASE',
-    defaultValue:
-        kIsWeb ? 'http://localhost/backend/api' : 'http://10.0.2.2:8000',
-  );
+  'API_BASE',
+  defaultValue: kIsWeb
+    ? 'https://whitesmoke-cat-617747.hostingersite.com/backend/api'
+    : 'https://whitesmoke-cat-617747.hostingersite.com/backend/api',
+);
+
 
   static const Duration timeout = Duration(seconds: 12);
 

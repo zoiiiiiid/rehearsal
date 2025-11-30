@@ -1,5 +1,5 @@
 // lib/pages/workshop_page.dart
-// Workshop hub with user-friendly errors (no dev/internal messages).
+// Workshop hub with user-friendly errors; fixed Material ancestry for InkWell/ChoiceChip.
 
 import 'dart:async';
 import 'dart:io';
@@ -24,7 +24,6 @@ const Map<String, String> _kSkillLabels = {
   'other': 'Other',
 };
 
-/// Why: one place to convert technical errors to human messages.
 String _friendlyError(Object error, {String? fallback}) {
   final fb = fallback ?? 'Something went wrong. Please try again.';
   if (error is SocketException) return 'No internet connection.';
@@ -39,7 +38,6 @@ String _friendlyError(Object error, {String? fallback}) {
   return fb;
 }
 
-/// Build an absolute URL if user scanned a relative path.
 String _resolveUrl(String raw) {
   final u = raw.trim();
   if (u.isEmpty) return '';
@@ -265,25 +263,27 @@ class _WorkshopPageState extends State<WorkshopPage> {
     );
   }
 
+  // FIX: InkWell is inside Card (Card provides Material ancestor).
   Widget _sessionCard(Map<String, dynamic> w) {
     final id = (w['id'] ?? '').toString();
     final title = (w['title'] ?? 'Session').toString();
     final when = _fmtStart(w['starts_at']);
 
-    return InkWell(
-      onTap: () {
-        if (id.isEmpty) return;
-        Navigator.pushNamed(context, '/workshop_detail', arguments: {'id': id});
-      },
-      child: SizedBox(
-        width: 240,
-        height: 120,
-        child: Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: Colors.black12),
-          ),
+    return SizedBox(
+      width: 240,
+      height: 120,
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Colors.black12),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            if (id.isEmpty) return;
+            Navigator.pushNamed(context, '/workshop_detail', arguments: {'id': id});
+          },
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -384,14 +384,25 @@ class _WorkshopPageState extends State<WorkshopPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    // Wrap the whole page in Scaffold → provides Material for Ink effects & chips.
+    if (_loading) {
+      return const Scaffold(
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      );
+    }
+
     if (_err != null) {
-      return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Text(_err!, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 8),
-          OutlinedButton(onPressed: _load, child: const Text('Retry')),
-        ]),
+      return Scaffold(
+        appBar: AppBar(title: const Text('Workshop')),
+        body: SafeArea(
+          child: Center(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(_err!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 8),
+              OutlinedButton(onPressed: _load, child: const Text('Retry')),
+            ]),
+          ),
+        ),
       );
     }
 
@@ -415,24 +426,18 @@ class _WorkshopPageState extends State<WorkshopPage> {
       ),
     );
 
-    return Stack(
-      children: [
-        list,
-        Positioned(
-          right: 16,
-          bottom: 24,
-          child: FloatingActionButton.extended(
-            onPressed: _scanQr,
-            label: const Text('Scan QR'),
-            icon: const Icon(Icons.qr_code_scanner),
-          ),
-        ),
-      ],
+    return Scaffold(
+      appBar: AppBar(title: const Text('Workshop')),
+      body: SafeArea(child: list),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _scanQr,
+        label: const Text('Scan QR'),
+        icon: const Icon(Icons.qr_code_scanner),
+      ),
     );
   }
 }
 
-/// Full-screen workshops browser (modal bottom sheet) — simple cards, no filters.
 class _WorkshopsBrowserSheet extends StatefulWidget {
   const _WorkshopsBrowserSheet({required this.initialSkill});
   final String initialSkill;
@@ -536,20 +541,23 @@ class _WorkshopsBrowserSheetState extends State<_WorkshopsBrowserSheet>
         borderRadius: BorderRadius.circular(14),
         side: const BorderSide(color: Colors.black12),
       ),
-      child: ListTile(
-        title: Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-        subtitle: starts.isNotEmpty ? Text(when()) : null,
-        trailing: const Icon(Icons.chevron_right),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
         onTap: () {
           if (id.isEmpty) return;
           Navigator.pop(context);
           Navigator.pushNamed(context, '/workshop_detail', arguments: {'id': id});
         },
+        child: ListTile(
+          title: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          subtitle: starts.isNotEmpty ? Text(when()) : null,
+          trailing: const Icon(Icons.chevron_right),
+        ),
       ),
     );
   }
@@ -698,14 +706,15 @@ class _SpotlightArtistCardState extends State<_SpotlightArtistCard> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: id.isEmpty ? null : () => widget.onOpenProfile?.call(id),
-      child: SizedBox(
-        width: 140,
-        child: Card(
-          elevation: 0,
-          color: const Color(0xFFF7F7F8),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return SizedBox(
+      width: 140,
+      child: Card(
+        elevation: 0,
+        color: const Color(0xFFF7F7F8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: id.isEmpty ? null : () => widget.onOpenProfile?.call(id),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
             child: Column(

@@ -1,7 +1,9 @@
+// lib/pages/admin_reports_page.dart
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/api.dart';
+import './workshop_page.dart';
 
 class AdminReportsPage extends StatefulWidget {
   const AdminReportsPage({super.key});
@@ -14,6 +16,7 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
   bool _loading = true;
   String? _err;
 
+  // Revenue removed
   Map<String, num> _kpis = const {
     'active_users': 0,
     'new_users': 0,
@@ -21,21 +24,19 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     'comments': 0,
     'likes': 0,
     'workshops': 0,
-    'attendance': 0,
-    'revenue_cents': 0,
   };
+
+  int _pendingCount = 0;
 
   List<Map<String, dynamic>> _series = [];
   String _chartMetric = 'posts';
 
   static const _metricLabels = {
-    'active_users': 'Active Users',
-    'new_users': 'New Users',
     'posts': 'Posts',
     'comments': 'Comments',
+    'active_users': 'Active Users',
+    'new_users': 'New Users',
     'likes': 'Likes',
-    'attendance': 'Attendance',
-    'revenue_cents': 'Revenue',
   };
 
   @override
@@ -44,7 +45,6 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     _loadAll();
   }
 
-  // User-safe error mapping (why: avoid dev-facing messages).
   String _friendly(Object error, {String? fallback}) {
     final fb = fallback ?? 'Something went wrong. Please try again.';
     if (error is SocketException) return 'No internet connection.';
@@ -67,9 +67,6 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     return n ?? 0;
   }
 
-  T? _asMap<T extends Map>(dynamic v) => (v is T) ? v : null;
-  List _asList(dynamic v) => (v is List) ? v : const [];
-
   Map<String, dynamic> _normalizeDay(Map<String, dynamic> d) {
     num getAny(List<String> keys) {
       for (final k in keys) {
@@ -85,27 +82,18 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
       'posts': getAny(['posts', 'post_count', 'posts_count']),
       'comments': getAny(['comments', 'comments_count']),
       'likes': getAny(['likes', 'likes_count']),
-      'attendance': getAny(['attendance', 'attendance_count', 'checkins', 'check_ins']),
-      'revenue_cents': getAny(['revenue_cents', 'revenueCents']),
     };
   }
 
-  // Handles both {date,metric:value} and {items:[{date,value}], metric:'posts'}
   List<Map<String, dynamic>> _coerceSeries(dynamic ts) {
     final list = (ts is Map && ts['items'] is List) ? (ts['items'] as List) : const [];
     if (list.isEmpty) return const [];
 
     final first = (list.first is Map) ? (list.first as Map).cast<String, dynamic>() : <String, dynamic>{};
-    final hasKnownMetricKey = first.keys.any((k) =>
-        k == 'posts' ||
-        k == 'comments' ||
-        k == 'likes' ||
-        k == 'active_users' ||
-        k == 'new_users' ||
-        k == 'attendance' ||
-        k == 'revenue_cents');
+    final hasMetric = first.keys.any((k) =>
+        k == 'posts' || k == 'comments' || k == 'likes' || k == 'active_users' || k == 'new_users');
 
-    if (hasKnownMetricKey) {
+    if (hasMetric) {
       return list.map((e) => (e as Map).cast<String, dynamic>()).toList();
     }
 
@@ -121,17 +109,8 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     }).toList();
   }
 
-  // Picks a non-flat metric to avoid an empty-looking chart.
   String _pickBestMetric(List<Map<String, dynamic>> days) {
-    const order = [
-      'posts',
-      'comments',
-      'active_users',
-      'new_users',
-      'likes',
-      'attendance',
-      'revenue_cents',
-    ];
+    const order = ['posts', 'comments', 'active_users', 'new_users', 'likes'];
     for (final k in order) {
       final sum = days.fold<num>(0, (a, e) => a + _toNum(e[k]));
       if (sum > 0) return k;
@@ -146,16 +125,24 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     });
 
     try {
-      final ov = await ApiService.adminAnalyticsOverview(range: _range);
-      final ts = await ApiService.adminAnalyticsSeries(range: _range);
-
+      final results = await Future.wait([
+        ApiService.adminAnalyticsOverview(range: _range),
+        ApiService.adminAnalyticsSeries(range: _range),
+        ApiService.get('admin_pending_list.php?limit=1'),
+      ]);
       if (!mounted) return;
 
-      final rawMap = _asMap<Map>(ov['kpis']) ?? _asMap<Map>(ov) ?? <String, dynamic>{};
+      final ov = results[0];
+      final ts = results[1];
+      final pend = (results[2] is Map) ? (results[2] as Map<String, dynamic>) : const {};
+
+      final rawMap = (ov['kpis'] is Map ? ov['kpis'] : ov) as Map? ?? <String, dynamic>{};
       final k = rawMap.cast<String, dynamic>();
 
       final coerced = _coerceSeries(ts);
       final days = coerced.map(_normalizeDay).toList();
+
+      final pendingCount = _toNum(pend['total'] ?? ((pend['items'] is List) ? (pend['items'] as List).length : 0)).toInt();
 
       setState(() {
         _kpis = {
@@ -165,13 +152,10 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
           'comments': _toNum(k['comments']),
           'likes': _toNum(k['likes']),
           'workshops': _toNum(k['workshops']),
-          'attendance': _toNum(k['attendance']),
-          'revenue_cents': _toNum(k['revenue_cents']),
         };
-
+        _pendingCount = pendingCount;
         _series = days;
 
-        // Prefer API metric if given; otherwise choose a non-flat one (why: better default UX).
         if (ts is Map && ts['metric'] is String && ts['metric'].toString().isNotEmpty) {
           _chartMetric = ts['metric'].toString();
         } else {
@@ -185,12 +169,9 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
       setState(() {
         _loading = false;
         _err = _friendly(e, fallback: 'Failed to load analytics.');
-        // Keeping tech detail out of UI intentionally.
       });
     }
   }
-
-  String _fmtMoney(num cents) => '\$${(cents / 100).toStringAsFixed(2)}';
 
   Widget _rangeChips() {
     const options = ['7d', '30d', '90d'];
@@ -210,36 +191,47 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     );
   }
 
-  Widget _kpiCard(String label, String value, {IconData? icon}) {
-    return Card(
+  // Tappable only when onTap provided (used for Workshops card)
+  Widget _kpiCard(String label, String value, {IconData? icon, VoidCallback? onTap}) {
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 2),
+                Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54, height: 1.1)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final card = Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: const BorderSide(color: Colors.black12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon),
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(value, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 2),
-                  Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54, height: 1.1)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: content,
     );
+
+    return onTap == null
+        ? card
+        : InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onTap,
+            child: card,
+          );
   }
 
   List<double> _valuesFor(String key) {
@@ -248,6 +240,20 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
       vals.add(_toNum(d[key]).toDouble());
     }
     return vals;
+  }
+
+  List<String> _dateLabels() {
+    final labels = <String>[];
+    for (final d in _series) {
+      labels.add(_fmtDateLabel(d['date']?.toString() ?? ''));
+    }
+    return labels;
+  }
+
+  String _fmtDateLabel(String raw) {
+    final dt = DateTime.tryParse(raw);
+    if (dt == null) return raw;
+    return '${dt.month}/${dt.day}'; // MM/DD
   }
 
   Widget _metricChips() {
@@ -270,19 +276,26 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     );
   }
 
+  // Render even when all values are zero; draw date ticks
   Widget _lineChart() {
     final values = _valuesFor(_chartMetric);
-    final hasData = values.any((v) => v > 0);
+    final labels = _dateLabels();
+    final hasSeries = _series.isNotEmpty;
 
     return Container(
-      height: 180,
+      height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.black12),
         color: Colors.white,
       ),
-      child: hasData
-          ? CustomPaint(painter: _SimpleLineChartPainter(values: values))
+      child: hasSeries
+          ? CustomPaint(
+              painter: _LineChartPainter(
+                values: values.isEmpty ? [0] : values,
+                labels: labels,
+              ),
+            )
           : const Center(child: Text('No data in this range')),
     );
   }
@@ -320,6 +333,8 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
               const SizedBox(height: 8),
               _rangeChips(),
               const SizedBox(height: 12),
+
+              // KPI grid (Revenue removed). Workshops card is clickable.
               GridView(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -330,16 +345,21 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
                   mainAxisSpacing: 10,
                 ),
                 children: [
-                  _kpiCard('Active Users', '${k['active_users']}', icon: Icons.people_alt_outlined),
                   _kpiCard('New Users', '${k['new_users']}', icon: Icons.person_add_alt_1_outlined),
-                  _kpiCard('Posts', '${k['posts']}', icon: Icons.photo_library_outlined),
-                  _kpiCard('Comments', '${k['comments']}', icon: Icons.mode_comment_outlined),
+                  _kpiCard('Active Users', '${k['active_users']}', icon: Icons.people_alt_outlined),
+                  _kpiCard('Pending verifications', '$_pendingCount', icon: Icons.verified_outlined),
                   _kpiCard('Likes', '${k['likes']}', icon: Icons.favorite_border),
-                  _kpiCard('Workshops', '${k['workshops']}', icon: Icons.live_tv_outlined),
-                  _kpiCard('Attendance', '${k['attendance']}', icon: Icons.qr_code_2_outlined),
-                  _kpiCard('Revenue', _fmtMoney(k['revenue_cents'] ?? 0), icon: Icons.payments_outlined),
+                  _kpiCard('Comments', '${k['comments']}', icon: Icons.mode_comment_outlined),
+                  _kpiCard(
+                    'Workshops',
+                    '${k['workshops']}',
+                    icon: Icons.live_tv_outlined,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WorkshopPage())),
+                  ),
+                  _kpiCard('Posts', '${k['posts']}', icon: Icons.photo_library_outlined),
                 ],
               ),
+
               const SizedBox(height: 16),
               const Text('Daily trends', style: TextStyle(fontWeight: FontWeight.w800)),
               const SizedBox(height: 8),
@@ -352,18 +372,11 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     return Scaffold(
       appBar: AppBar(
         leading: Navigator.of(context).canPop()
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.of(context).pop(),
-              )
+            ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop())
             : null,
         title: const Text('Admin Reports'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadAll,
-            tooltip: 'Refresh',
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadAll, tooltip: 'Refresh'),
         ],
       ),
       body: SafeArea(
@@ -373,27 +386,25 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
   }
 }
 
-class _SimpleLineChartPainter extends CustomPainter {
-  _SimpleLineChartPainter({required this.values});
+// ---- Chart with date axis labels ----
+class _LineChartPainter extends CustomPainter {
+  _LineChartPainter({required this.values, required this.labels});
   final List<double> values;
+  final List<String> labels;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paintAxis = Paint()
-      ..color = const Color(0xFFDDDDDD)
-      ..strokeWidth = 1;
+    final paintAxis = Paint()..color = const Color(0xFFDDDDDD)..strokeWidth = 1;
+    final paintLine = Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 2;
 
-    final paintLine = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    const left = 8.0, right = 8.0, top = 8.0, bottom = 18.0;
+    const left = 8.0, right = 8.0, top = 8.0, bottom = 28.0; // more bottom for labels
     final w = size.width - left - right;
     final h = size.height - top - bottom;
 
-    canvas.drawLine(Offset(left, size.height - bottom), Offset(size.width - right, size.height - bottom), paintAxis);
-    canvas.drawLine(Offset(left, top), Offset(left, size.height - bottom), paintAxis);
+    // axes
+    final xAxisY = size.height - bottom;
+    canvas.drawLine(Offset(left, xAxisY), Offset(size.width - right, xAxisY), paintAxis);
+    canvas.drawLine(Offset(left, top), Offset(left, xAxisY), paintAxis);
 
     if (values.isEmpty || w <= 0 || h <= 0) return;
 
@@ -401,7 +412,6 @@ class _SimpleLineChartPainter extends CustomPainter {
     final minV = values.reduce(math.min);
     final span = (maxV - minV).abs() < 1e-6 ? 1.0 : (maxV - minV);
 
-    // Why: stable spacing even with 1 point; avoids division by zero.
     final stepX = w / math.max(1, values.length - 1);
     final path = Path();
 
@@ -409,17 +419,41 @@ class _SimpleLineChartPainter extends CustomPainter {
       final x = left + i * stepX;
       final norm = (values[i] - minV) / span;
       final y = top + (1 - norm) * h;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
+      if (i == 0) path.moveTo(x, y); else path.lineTo(x, y);
     }
     canvas.drawPath(path, paintLine);
+
+    // X ticks: first, mid, last (+ optional quarter)
+    final idxs = _tickIndices(values.length);
+    for (final i in idxs) {
+      final x = left + i * stepX;
+      // tick mark
+      canvas.drawLine(Offset(x, xAxisY), Offset(x, xAxisY + 4), paintAxis);
+      // label
+      final lab = (i >= 0 && i < labels.length) ? labels[i] : '';
+      final tp = TextPainter(
+        text: TextSpan(text: lab, style: const TextStyle(fontSize: 10, color: Colors.black54)),
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+        ellipsis: '…',
+      )..layout(maxWidth: 60);
+      final dx = (x - tp.width / 2).clamp(left, size.width - right - tp.width);
+      tp.paint(canvas, Offset(dx.toDouble(), xAxisY + 6));
+    }
+  }
+
+  List<int> _tickIndices(int n) {
+    if (n <= 1) return [0];
+    if (n == 2) return [0, 1];
+    if (n == 3) return [0, 1, 2];
+    final last = n - 1;
+    final q1 = (n - 1) ~/ 3;
+    final q2 = (2 * (n - 1)) ~/ 3;
+    return {0, q1, q2, last}.toList()..sort();
   }
 
   @override
-  bool shouldRepaint(covariant _SimpleLineChartPainter oldDelegate) {
-    return oldDelegate.values != values;
-  }
+  bool shouldRepaint(covariant _LineChartPainter old) {
+    return old.values != values || old.labels != labels;
+    }
 }
