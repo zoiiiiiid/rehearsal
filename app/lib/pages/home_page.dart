@@ -1,3 +1,4 @@
+// lib/pages/home_page.dart
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -51,7 +52,12 @@ class _HomePageState extends State<HomePage> {
   int _page = 1;
   bool _hasMore = true;
 
+  // Notifications unread (existing)
   int _unread = 0;
+
+  // NEW: DMs unread total
+  int _dmUnread = 0;
+
   Timer? _badgeTimer;
 
   String _skill = 'all';
@@ -62,7 +68,11 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _load(reset: true);
     _loadUnread();
-    _badgeTimer = Timer.periodic(const Duration(seconds: 25), (_) => _loadUnread());
+    _loadDmUnread();
+    _badgeTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+      _loadUnread();
+      _loadDmUnread();
+    });
   }
 
   @override
@@ -82,6 +92,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _pull() async {
     await _load(reset: true);
     await _loadUnread();
+    await _loadDmUnread();
   }
 
   Future<void> _load({bool reset = false}) async {
@@ -139,13 +150,59 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // ---- Unread notifications badge
+  // ---- Unread notifications badge (existing)
   Future<void> _loadUnread() async {
     final r = await ApiService.get('notifications_unread.php');
     if (!mounted) return;
     if (r['ok'] == true) {
       setState(() => _unread = (r['unread'] as int?) ?? 0);
     }
+  }
+
+  // ---- NEW: Unread DMs badge on Messages icon
+  Future<void> _loadDmUnread() async {
+    Map<String, dynamic> res = await ApiService.get('conversations_list.php');
+
+    // Fallback: retry with ?token= if backend expects token in query
+    if (res['ok'] != true && (res['error'] == 'NO_TOKEN' || res['error'] == 'USER_REQUIRED')) {
+      final sp = await SharedPreferences.getInstance();
+      final t = sp.getString('token');
+      if (t != null && t.isNotEmpty) {
+        res = await ApiService.get('conversations_list.php?token=${Uri.encodeQueryComponent(t)}');
+      }
+    }
+
+    if (!mounted) return;
+
+    int total = 0;
+
+    // Accept various keys: items / conversations / threads
+    final rawList = (res['items'] ?? res['conversations'] ?? res['threads']);
+    if (rawList is List) {
+      for (final it in rawList) {
+        if (it is! Map) continue;
+        final m = it.cast<String, dynamic>();
+
+        // Prefer numeric unread fields
+        final dynamic nRaw = (m['unread'] ?? m['unread_count'] ?? m['unreadMessages']);
+        int n = 0;
+        if (nRaw is num) {
+          n = nRaw.toInt();
+        } else if (nRaw is String) {
+          n = int.tryParse(nRaw) ?? 0;
+        }
+
+        // Fallbacks if no numeric count is present
+        if (n == 0) {
+          final boolFlag = (m['is_unread'] == true) || (m['has_unread'] == true) || (m['unread_flag'] == true);
+          if (boolFlag) n = 1; // count the thread as 1 unread when server doesn't provide counts
+        }
+
+        total += n;
+      }
+    }
+
+    setState(() => _dmUnread = total);
   }
 
   Future<void> _openNotifications() async {
@@ -169,6 +226,12 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Can’t open messages right now.')),
       );
+      return;
+    }
+    // Refresh counts when returning
+    if (mounted) {
+      _loadDmUnread();
+      _loadUnread();
     }
   }
 
@@ -357,11 +420,24 @@ class _HomePageState extends State<HomePage> {
           children: [
             const _BrandWordmark(),
             const Spacer(),
-            IconButton(
-              tooltip: 'Messages',
-              onPressed: _openMessages,
-              icon: const Icon(Icons.chat_bubble_outline),
+            // Messages with numbered pill
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  tooltip: 'Messages',
+                  onPressed: _openMessages,
+                  icon: const Icon(Icons.chat_bubble_outline),
+                ),
+                if (_dmUnread > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: _NumberBadge(count: _dmUnread),
+                  ),
+              ],
             ),
+            // Notifications (existing, dot)
             Stack(
               clipBehavior: Clip.none,
               children: [
@@ -535,6 +611,7 @@ class _BrandWordmark extends StatelessWidget {
   }
 }
 
+// Existing tiny red dot (notifications)
 class _UnreadDot extends StatelessWidget {
   const _UnreadDot();
   @override
@@ -543,6 +620,34 @@ class _UnreadDot extends StatelessWidget {
       width: 9,
       height: 9,
       decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+    );
+  }
+}
+
+// NEW: numbered pill badge for messages
+class _NumberBadge extends StatelessWidget {
+  final int count;
+  const _NumberBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final text = count > 99 ? '99+' : '$count';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white, width: 2),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          height: 1.0,
+        ),
+      ),
     );
   }
 }
