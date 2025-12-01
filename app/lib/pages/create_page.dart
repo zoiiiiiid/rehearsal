@@ -33,7 +33,8 @@ class _CreatePageState extends State<CreatePage> {
   String _role = 'artist';
   bool _loadingRole = true;
 
-  String? _skill;
+  /// MULTI-SELECT skills (use Set for easy toggle)
+  final Set<String> _skills = <String>{};
 
   @override
   void initState() {
@@ -80,7 +81,7 @@ class _CreatePageState extends State<CreatePage> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'mp4'],
-      withData: true,
+      withData: true,         // needed for web
       allowMultiple: false,
     );
     if (result == null || result.files.isEmpty) return;
@@ -94,9 +95,9 @@ class _CreatePageState extends State<CreatePage> {
   Future<void> _post() async {
     final f = _picked;
 
-    if (_skill == null) {
+    if (_skills.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a skill for this post')),
+        const SnackBar(content: Text('Please select at least one skill for this post')),
       );
       return;
     }
@@ -114,19 +115,44 @@ class _CreatePageState extends State<CreatePage> {
     );
 
     final String filename = f.name;
-    final Uint8List? bytes = f.bytes;
-    String? filePath;
-    if (!kIsWeb) filePath = f.path;
+
+    // IMPORTANT:
+    // • On web: send raw bytes (required).
+    // • On mobile/desktop: send filePath (more reliable).
+    // Never send both; never send null/empty bytes.
+    final bool useBytes = kIsWeb;
+    final Uint8List? bytes = useBytes ? f.bytes : null;
+    final String? filePath = useBytes ? null : f.path;
+
+    if (useBytes && (bytes == null || bytes.isEmpty)) {
+      setState(() => _uploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not read file bytes in browser. Please pick the file again.')),
+      );
+      return;
+    }
+    if (!useBytes && (filePath == null || filePath.isEmpty)) {
+      setState(() => _uploading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not access file path. Please pick the file again.')),
+      );
+      return;
+    }
+
+    // Multi-skill payload (CSV) + legacy single for older servers
+    final String skillsCsv = _skills.join(',');
+    final String legacySingle = _skills.first;
 
     final res = await ApiService.uploadMultipart(
       'post_create.php',
       fieldName: 'media',
       filename: filename,
-      bytes: bytes,
-      filePath: filePath,
+      bytes: bytes,          // web only
+      filePath: filePath,    // mobile/desktop only
       fields: {
         'caption': _caption.text.trim(),
-        'skill': _skill!, // required by backend
+        'skills' : skillsCsv,   // new multi
+        'skill'  : legacySingle // legacy single (server falls back if needed)
       },
     );
 
@@ -137,14 +163,15 @@ class _CreatePageState extends State<CreatePage> {
       _caption.clear();
       setState(() {
         _picked = null;
+        _skills.clear();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Posted!')),
       );
       Navigator.maybePop(context);
     } else {
-      // Keep details private; show user-safe copy only.
-      final userMsg = _friendly(Exception(res['error'] ?? 'post_failed'), fallback: 'Couldn’t post. Please try again.');
+      final userMsg = _friendly(Exception(res['error'] ?? 'post_failed'),
+          fallback: 'Couldn’t post. Please try again.');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userMsg)));
     }
   }
@@ -204,24 +231,40 @@ class _CreatePageState extends State<CreatePage> {
     );
   }
 
+  /// Multi-select skill picker (toggle ChoiceChip)
   Widget _skillPicker() {
+    final int count = _skills.length;
+    final String helper = count == 0
+        ? 'Choose one or more skills (required)'
+        : 'Selected: $count';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Choose a skill (required)', style: TextStyle(fontWeight: FontWeight.w700)),
+        Text(helper, style: const TextStyle(fontWeight: FontWeight.w700)),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: _kSkillLabels.entries.map((e) {
-              final selected = _skill == e.key;
+              final bool selected = _skills.contains(e.key);
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
                   label: Text(e.value),
                   selected: selected,
-                  onSelected: (_) => setState(() => _skill = e.key),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  onSelected: (on) {
+                    setState(() {
+                      if (on) {
+                        _skills.add(e.key);
+                      } else {
+                        _skills.remove(e.key);
+                      }
+                    });
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               );
             }).toList(),
@@ -270,7 +313,7 @@ class _CreatePageState extends State<CreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    final canPost = !_uploading && _skill != null && _picked != null;
+    final canPost = !_uploading && _skills.isNotEmpty && _picked != null;
 
     return Scaffold(
       body: SafeArea(
@@ -327,11 +370,11 @@ class _CreatePageState extends State<CreatePage> {
             Card(
               elevation: 0,
               color: const Color(0xFFF8F9FB),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Icon(Icons.info_outline, size: 18),
                     SizedBox(width: 10),
                     Expanded(
